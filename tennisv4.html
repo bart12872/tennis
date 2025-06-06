@@ -488,8 +488,8 @@ function logsToCSV3(logs) {
   return csvRows.join("\n");
 }
 
-    function copyToClipboardCSV3() {
-  const csv = logsToCSV(logs);
+    function copyToClipboardCSV() {
+  const csv = logsToCSV3(logs);
   navigator.clipboard.writeText(csv).then(() => {
     alert("Données CSV copiées dans le presse-papiers !");
   }).catch(err => {
