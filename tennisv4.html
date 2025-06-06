@@ -42,7 +42,7 @@
 
     <!-- Ligne 1 : Point gagné / Faute directe -->
 <div style="display: flex; gap: 2px; margin-bottom: 0px;">
-  <button onclick="logAction('point_gagné_faute_adverse')" style="flex: 1;">Pt gagné faute dir adv</button>
+  <button onclick="logAction('point_gagné_faute_dir_adverse')" style="flex: 1;">Pt gagné faute dir adv</button>
   <button onclick="logAction('faute_directe')" style="flex: 1;">Faute directe</button>
 </div>
 <!-- Ligne 2 : Faute non directe / Changer serveur -->
@@ -145,7 +145,7 @@
     function logAction(action) {
       const timestamp = new Date().toISOString();
       logs.push({ matchId, timestamp, action, server: currentServer });
-      if (["point_gagné_faute_adverse", "point_gagné_coup_gagnant"].includes(action)) {
+      if (["point_gagné_faute_dir_adverse", "point_gagné_coup_gagnant"].includes(action)) {
         j1Points++;
         j1Temp++;
       } else if (["faute_directe", "faute_non_directe", "2eme_service_KO"].includes(action)) {
