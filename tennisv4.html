@@ -233,7 +233,7 @@ function generateQRCode() {
     
 function saveLogsAsImage() {
 //  const text = JSON.stringify(logs, null, 2);
-  const text = logsToCSVFinal(logs); // CSV généré depuis logs
+  const text = logsToCSV4Final(logs); // CSV généré depuis logs
   const canvas = document.getElementById("textImage");
   const ctx = canvas.getContext("2d");
 
@@ -266,7 +266,7 @@ function saveLogsAsImage() {
 
 
 function saveLogsAsImageCSV() {
-  const text = logsToCSVFinal(logs); // CSV généré depuis logs
+  const text = logsToCSV4Final(logs); // CSV généré depuis logs
   const lines = text.split('\n');
   const lineHeight = 20;
   const padding = 10;
