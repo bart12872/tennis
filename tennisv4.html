@@ -69,7 +69,7 @@
     <button onclick="clearLogs()">🗑️ Réinitialiser</button>
     <button onclick="downloadMatch()">⬇️ Télécharger</button>
     <button onclick="showCSV()">📄 Afficher CSV</button>
-    <button onclick="saveLogsAsImageCSV()">🖼️ Sauver comme image</button>
+    <button onclick="saveLogsAsImage()">🖼️ Sauver comme image</button>
      <canvas id="textImage" style="display: none;"></canvas>
  <!--  <button onclick="generateQRCode()">📷 QR Code</button> 
     <div id="qrcode" style="margin-top: 20px;"></div>   -->
@@ -232,7 +232,8 @@ function generateQRCode() {
 
     
 function saveLogsAsImage() {
-  const text = JSON.stringify(logs, null, 2);
+//  const text = JSON.stringify(logs, null, 2);
+  const text = logsToCSVFinal(logs); // CSV généré depuis logs
   const canvas = document.getElementById("textImage");
   const ctx = canvas.getContext("2d");
 
