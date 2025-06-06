@@ -46,6 +46,7 @@
     <button onclick="changeServer()">Changer serveur</button>
     <button onclick="showLogs()">📋 Voir les données</button>
     <button onclick="clearLogs()">🗑️ Réinitialiser</button>
+    <button onclick="downloadMatch()">⬇️ Télécharger</button>
   </div>
 
   <div id="logs">
@@ -172,6 +173,16 @@
         alert("Données effacées.");
       }
     }
+
+    function downloadMatch() {
+  const blob = new Blob([JSON.stringify(logs, null, 2)], { type: "application/json" });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = matchId + ".json";
+  a.click();
+  URL.revokeObjectURL(url);
+   }
   </script>
 </body>
 </html>
