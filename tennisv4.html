@@ -42,13 +42,16 @@
 
     <!-- Ligne 1 : Point gagné / Faute directe -->
 <div style="display: flex; gap: 4px; margin-bottom: 6px;">
-  <button onclick="logAction('point_gagné')" style="flex: 1;">Point gagné</button>
+  <button onclick="logAction('point_gagné_faute_adverse')" style="flex: 1;">Point gagné faute directe adv</button>
   <button onclick="logAction('faute_directe')" style="flex: 1;">Faute directe</button>
 </div>
 <!-- Ligne 2 : Faute non directe / Changer serveur -->
 <div style="display: flex; gap: 4px; margin-bottom: 6px;">
-  <button onclick="logAction('change_server')" style="flex: 1;">Changer serveur</button>
+  <button onclick="logAction('point_gagné_coup_gagnant')" style="flex: 1;">Point gagné coup gagnant</button>
   <button onclick="logAction('faute_non_directe')" style="flex: 1;">Faute non directe</button>
+</div>    
+<div style="display: flex; gap: 4px; margin-bottom: 6px;">
+  <button onclick="logAction('change_server')" style="flex: 1;">Changer serveur</button>
 </div>    
     
     <button onclick="logAction('1er_service_KO')">1er service KO</button>
@@ -139,7 +142,7 @@
     function logAction(action) {
       const timestamp = new Date().toISOString();
       logs.push({ matchId, timestamp, action, server: currentServer });
-      if (action === "point_gagné") {
+      if (["point_gagné_faute_adverse", "point_gagné_coup_gagnant"].includes(action)) {
         j1Points++;
         j1Temp++;
       } else if (["faute_directe", "faute_non_directe", "2eme_service_KO"].includes(action)) {
