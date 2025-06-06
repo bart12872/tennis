@@ -209,7 +209,7 @@ function generateQRCode() {
   });
 }
     function sendToServer() {
-  const ip = "x.x.x.x"; // 🔁 Remplace par l'adresse IP que tu as trouvée avec `ip addr`
+  const ip = "192.168.1.101"; // 🔁 Remplace par l'adresse IP que tu as trouvée avec `ip addr`
   fetch(`http://${ip}/tennis/upload.php`, {
     method: 'POST',
     headers: {
