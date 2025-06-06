@@ -307,7 +307,7 @@ function showCSV() {
     alert("Aucun log à convertir.");
     return;
   }
-  const csv = logsToCSV(logs);
+  const csv = logsToCSV2(logs);
   document.getElementById("logOutput").value = csv;
   document.getElementById("logs").style.display = "block";
 }
@@ -340,6 +340,38 @@ function showCSV() {
   return csvRows.join("\n");
 }
 
+function logsToCSV2(logs) {
+  if (!logs.length) return "";
+
+  const headers = Object.keys(logs[0]).concat("score");
+  const csvRows = [headers.join(",")];
+
+  let j1 = 0, j2 = 0, j1Temp = 0, j2Temp = 0;
+
+  for (const log of logs) {
+    const action = log.action;
+    if (action === "point_gagné") {
+      j1++; j1Temp++;
+    } else if (["faute_directe", "faute_non_directe", "2eme_service_KO"].includes(action)) {
+      j2++; j2Temp++;
+    }
+
+    const score = `J1: ${j1} (+${j1Temp}) | J2: ${j2} (+${j2Temp})`;
+
+    const values = Object.keys(log).map(k => {
+      let val = log[k];
+      if (typeof val === "string" && (val.includes(",") || val.includes('"') || val.includes("\n"))) {
+        val = '"' + val.replace(/"/g, '""') + '"';
+      }
+      return val;
+    });
+
+    values.push(`"${score}"`);
+    csvRows.push(values.join(","));
+  }
+
+  return csvRows.join("\n");
+}
 
     
   </script>
