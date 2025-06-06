@@ -34,15 +34,22 @@ as<!DOCTYPE html>
   <script src="https://cdn.jsdelivr.net/npm/qrcode/build/qrcode.min.js"></script>
 </head>
 <body>
-  <h2>Match de tennis</h2>
+//  <h2>Match de tennis</h2>
   <div id="scoreboard">J1 : 0 | J2 : 0</div>
   <button id="startBtn">🎾 Début de match</button>
 
   <div id="actions">
+
+    <!-- Ligne 1 : Point gagné / Faute directe -->
+<div style="display: flex; gap: 4px; margin-bottom: 6px;">
+  <button onclick="logAction('point_gagné')" style="flex: 1;">Point gagné</button>
+  <button onclick="logAction('faute_directe')" style="flex: 1;">Faute directe</button>
+</div>
+    
     <button onclick="logAction('1er_service_KO')">1er service KO</button>
     <button onclick="logAction('2eme_service_KO')">2ème service KO</button>
-    <button onclick="logAction('point_gagné')">Point gagné</button>
-    <button onclick="logAction('faute_directe')">Point perdu (faute directe)</button>
+    //<button onclick="logAction('point_gagné')">Point gagné</button>
+    //<button onclick="logAction('faute_directe')">Point perdu (faute directe)</button>
     <button onclick="logAction('faute_non_directe')">Point perdu (faute non directe)</button>
     <button onclick="changeServer()">Changer serveur</button>
     <button onclick="showLogs()">📋 Voir les données</button>
