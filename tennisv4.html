@@ -31,7 +31,7 @@
       margin: 10px 0;
     }
   </style>
-<!--  <script src="https://cdn.jsdelivr.net/npm/qrcode/build/qrcode.min.js"></script>  -->
+  <script src="https://cdn.jsdelivr.net/npm/qrcode/build/qrcode.min.js"></script>  
 </head>
 <body>
   <!-- <h2>Match de tennis</h2> -->
@@ -69,10 +69,10 @@
     <button onclick="clearLogs()">🗑️ Réinitialiser</button>
     <button onclick="downloadMatch()">⬇️ Télécharger</button>
     <button onclick="showCSV()">📄 Afficher CSV</button>
-    <button onclick="saveLogsAsImageCSV()">🖼️ Sauver comme image</button>
+    <button onclick="saveLogsAsImage()">🖼️ Sauver comme image</button>
      <canvas id="textImage" style="display: none;"></canvas>
-<!--   <button onclick="generateQRCode()">📷 QR Code</button> 
-    <div id="qrcode" style="margin-top: 20px;"></div>   -->
+   <button onclick="generateQRCode()">📷 QR Code</button> 
+    <div id="qrcode" style="margin-top: 20px;"></div>   
   </div>
 
   <div id="logs">
