@@ -257,7 +257,7 @@ function sendLogsToNAS(logsJsonString) {
     function envoyerAuNas() {
   const logsTexte = document.getElementById("logOutput").value;
 
-  fetch("http://192.168.1.100/tennis/upload.php", {
+  fetch("http://192.168.1.101/tennis/upload.php", {
     method: "POST",
     headers: {
       "Content-Type": "text/plain"
