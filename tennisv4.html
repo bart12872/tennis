@@ -31,6 +31,7 @@
       margin: 10px 0;
     }
   </style>
+  <script src="https://cdn.jsdelivr.net/npm/qrcode/build/qrcode.min.js"></script>
 </head>
 <body>
   <h2>Match de tennis</h2>
@@ -47,6 +48,8 @@
     <button onclick="showLogs()">📋 Voir les données</button>
     <button onclick="clearLogs()">🗑️ Réinitialiser</button>
     <button onclick="downloadMatch()">⬇️ Télécharger</button>
+    <button onclick="generateQRCode()">📷 QR Code</button>
+    <div id="qrcode" style="margin-top: 20px;"></div>
   </div>
 
   <div id="logs">
@@ -183,6 +186,19 @@
   a.click();
   URL.revokeObjectURL(url);
    }
+
+function generateQRCode() {
+  const data = JSON.stringify(logs);
+  document.getElementById("qrcode").innerHTML = ""; // reset
+  QRCode.toCanvas(data, { width: 200 }, function (err, canvas) {
+    if (err) {
+      alert("Erreur QR code : " + err);
+      return;
+    }
+    document.getElementById("qrcode").appendChild(canvas);
+  });
+}
+    
   </script>
 </body>
 </html>
