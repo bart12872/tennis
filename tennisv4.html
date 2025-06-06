@@ -42,20 +42,24 @@
 
     <!-- Ligne 1 : Point gagné / Faute directe -->
 <div style="display: flex; gap: 4px; margin-bottom: 6px;">
-  <button onclick="logAction('point_gagné_faute_adverse')" style="flex: 1;">Point gagné faute directe adv</button>
+  <button onclick="logAction('point_gagné_faute_adverse')" style="flex: 1;">Pt gagné faute dir adv</button>
   <button onclick="logAction('faute_directe')" style="flex: 1;">Faute directe</button>
 </div>
 <!-- Ligne 2 : Faute non directe / Changer serveur -->
 <div style="display: flex; gap: 4px; margin-bottom: 6px;">
-  <button onclick="logAction('point_gagné_coup_gagnant')" style="flex: 1;">Point gagné coup gagnant</button>
+  <button onclick="logAction('point_gagné_coup_gagnant')" style="flex: 1;">Pt gagné cp gagnant</button>
   <button onclick="logAction('faute_non_directe')" style="flex: 1;">Faute non directe</button>
-</div>    
+</div>   
 <div style="display: flex; gap: 4px; margin-bottom: 6px;">
-  <button onclick="logAction('change_server')" style="flex: 1;">Changer serveur</button>
+  <button onclick="logAction('1er_service_KO')">1er service KO</button>
+  <button onclick="logAction('2eme_service_KO')">2ème service KO</button>
+</div>     
+<div style="display: flex; gap: 4px; margin-bottom: 6px;">
+  <button onclick="changeServer()">Changer serveur</button>
 </div>    
     
-    <button onclick="logAction('1er_service_KO')">1er service KO</button>
-    <button onclick="logAction('2eme_service_KO')">2ème service KO</button>
+ <!--   <button onclick="logAction('1er_service_KO')">1er service KO</button>  -->
+<!--   <button onclick="logAction('2eme_service_KO')">2ème service KO</button> -->
 <!--    <button onclick="logAction('point_gagné')">Point gagné</button>       -->
 <!--    <button onclick="logAction('faute_directe')">Point perdu (faute directe)</button>        -->
 <!--    <button onclick="logAction('faute_non_directe')">Point perdu (faute non directe)</button>  -->
@@ -64,7 +68,6 @@
     <button onclick="copyToClipboardCSV()">📋 Copier les données</button>
     <button onclick="clearLogs()">🗑️ Réinitialiser</button>
     <button onclick="downloadMatch()">⬇️ Télécharger</button>
-<!--    <button onclick="envoyerAuNas()">📡 Envoyer au NAS</button>        -->
     <button onclick="showCSV()">📄 Afficher CSV</button>
     <button onclick="saveLogsAsImage()">🖼️ Sauver comme image</button>
     <canvas id="textImage" style="display: none;"></canvas>
@@ -226,66 +229,8 @@ function generateQRCode() {
     alert("Erreur lors de la copie : " + err);
   });
 }
-    function sendToServer() {
-  const ip = "192.168.1.101"; // 🔁 Remplace par l'adresse IP que tu as trouvée avec `ip addr`
-  fetch(`http://${ip}/tennis/upload.html`, {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json'
-    },
-    body: JSON.stringify(logs)
-  })
-  .then(response => response.json())
-  .then(result => {
-    alert("Serveur : " + result.message);
-  })
-  .catch(error => {
-    alert("Erreur envoi : " + error);
-  });
-}
 
-function sendLogsToNAS(logsJsonString) {
-  fetch('http://192.168.1.101/tennis/upload.php', {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json'
-    },
-    body: logsJsonString
-  })
-  .then(response => response.text())
-  .then(text => alert("Réponse du NAS : " + text))
-  .catch(err => alert("Erreur d'envoi : " + err));
-}
-
-    function sendToNAS() {
-  const jsonString = JSON.stringify(logs);
-
-  fetch('http://pegase78/tennis/upload.php', {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json'
-    },
-    body: jsonString
-  })
-  .then(response => response.text())
-  .then(text => alert("Réponse du NAS : " + text))
-  .catch(err => alert("Erreur d'envoi : " + err));
-}
-
-    function envoyerAuNas() {
-  const logsTexte = document.getElementById("logOutput").value;
-
-  fetch("http://192.168.1.101/tennis/upload.php", {
-    method: "POST",
-    headers: {
-      "Content-Type": "text/plain"
-    },
-    body: logsTexte
-  })
-  .then(response => response.text())
-  .then(msg => alert("Réponse du NAS : " + msg))
-  .catch(err => alert("Erreur d'envoi : " + err));
-}
+    
 function saveLogsAsImage() {
   const text = JSON.stringify(logs, null, 2);
   const canvas = document.getElementById("textImage");
