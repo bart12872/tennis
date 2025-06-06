@@ -67,7 +67,7 @@
     <button onclick="showLogs()">📋 Voir les données</button>
     <button onclick="copyToClipboardCSV()">📋 Copier les données</button>
     <button onclick="clearLogs()">🗑️ Réinitialiser</button>
-    <button onclick="downloadMatch()">⬇️ Télécharger</button>
+    <button onclick="downloadMatchCSV()">⬇️ Télécharger</button>
     <button onclick="showCSV()">📄 Afficher CSV</button>
     <button onclick="saveLogsAsImage()">🖼️ Sauver comme image</button>
      <canvas id="textImage" style="display: none;"></canvas>
@@ -209,6 +209,17 @@
   a.click();
   URL.revokeObjectURL(url);
    }
+
+    function downloadMatchCSV() {
+  const csv = logsToCSV4Final(logs); // Cette fonction doit transformer tes logs en CSV
+  const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = matchId + ".csv"; // Nom du fichier
+  a.click();
+  URL.revokeObjectURL(url);
+}
 
 function generateQRCode() {
   const data = JSON.stringify(logs);
