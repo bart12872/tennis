@@ -489,13 +489,138 @@ function logsToCSV3(logs) {
 }
 
     function copyToClipboardCSV() {
-  const csv = logsToCSV3(logs);
+  const csv = logsToCSV4Final(logs);
   navigator.clipboard.writeText(csv).then(() => {
     alert("Données CSV copiées dans le presse-papiers !");
   }).catch(err => {
     alert("Erreur lors de la copie : " + err);
   });
 }
+function logsToCSV4Final(logs) {
+  if (!logs.length) return "";
+
+  const headers = Object.keys(logs[0]).concat("score_tennis", "score_cumul");
+  const csvRows = [headers.join(";")];
+
+  let sets = [[0, 0]];
+  let currentSet = 0;
+  let jeux = [0, 0];
+  let points = [0, 0];
+  let advantage = null;
+  let inTiebreak = false;
+
+  let currentServer = logs[0]?.server || "J1";
+
+  let j1Total = 0;
+  let j2Total = 0;
+  let j1Temp = 0;
+  let j2Temp = 0;
+
+  function getTennisPoint(p1, p2) {
+    const labels = ["0", "15", "30", "40"];
+    if (p1 >= 3 && p2 >= 3) {
+      if (p1 === p2) return "40A";
+      if (p1 > p2) return "AD";
+      return "";
+    }
+    return labels[p1] || "AD";
+  }
+
+  function scoreTennis() {
+    if (inTiebreak) {
+      return `Set ${currentSet + 1} : ${sets[currentSet][0]}-${sets[currentSet][1]}, TB ${points[0]}-${points[1]}`;
+    } else {
+      const p1 = getTennisPoint(points[0], points[1]);
+      const p2 = getTennisPoint(points[1], points[0]);
+      return `Set ${currentSet + 1} : ${sets[currentSet][0]}-${sets[currentSet][1]}, Jeu ${jeux[0]}-${jeux[1]}, Pts ${p1}-${p2}`;
+    }
+  }
+
+  function winPoint(winner) {
+    const loser = 1 - winner;
+
+    if (winner === 0) {
+      j1Total++; j1Temp++;
+    } else {
+      j2Total++; j2Temp++;
+    }
+
+    if (inTiebreak) {
+      points[winner]++;
+      if ((points[winner] >= 7) && (points[winner] - points[loser] >= 2)) {
+        sets[currentSet][winner]++;
+        currentSet++;
+        sets.push([0, 0]);
+        jeux = [0, 0];
+        inTiebreak = false;
+      }
+      return;
+    }
+
+    if (points[winner] < 3) {
+      points[winner]++;
+    } else if (points[winner] === 3) {
+      if (points[loser] < 3) {
+        jeux[winner]++;
+        points = [0, 0];
+        advantage = null;
+      } else if (points[loser] === 3) {
+        if (advantage === winner) {
+          jeux[winner]++;
+          points = [0, 0];
+          advantage = null;
+        } else if (advantage === loser) {
+          advantage = null;
+        } else {
+          advantage = winner;
+        }
+      }
+    }
+
+    if (points[0] === 0 && points[1] === 0) {
+      if (jeux[winner] >= 6 && (jeux[winner] - jeux[loser]) >= 2) {
+        sets[currentSet][winner]++;
+        currentSet++;
+        sets.push([0, 0]);
+        jeux = [0, 0];
+      } else if (jeux[0] === 6 && jeux[1] === 6) {
+        inTiebreak = true;
+        points = [0, 0];
+      }
+    }
+  }
+
+  for (const log of logs) {
+    const action = log.action;
+
+    if (action === "point_gagné") {
+      winPoint(0);
+    } else if (["faute_directe", "faute_non_directe", "2eme_service_KO"].includes(action)) {
+      winPoint(1);
+    } else if (action === "change_server") {
+      currentServer = currentServer === "J1" ? "J2" : "J1";
+    }
+
+    const scoreT = scoreTennis();
+    const scoreC = `J1: ${j1Total} (+${j1Temp}) | J2: ${j2Total} (+${j2Temp})`;
+
+    const values = Object.keys(log).map(k => {
+      let val = log[k];
+      if (typeof val === "string" && (val.includes(";") || val.includes('"') || val.includes("\n"))) {
+        val = '"' + val.replace(/"/g, '""') + '"';
+      }
+      return val;
+    });
+
+    values.push(scoreT);
+    values.push(scoreC);
+    csvRows.push(values.join(";"));
+  }
+
+  return csvRows.join("\n");
+}
+
+
     
   </script>
 </body>
