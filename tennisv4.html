@@ -50,6 +50,7 @@ as<!DOCTYPE html>
     <button onclick="clearLogs()">🗑️ Réinitialiser</button>
     <button onclick="downloadMatch()">⬇️ Télécharger</button>
     <button onclick="envoyerAuNas()">📡 Envoyer au NAS</button>
+    <button onclick="showCSV()">📄 Afficher CSV</button>
     <button onclick="saveLogsAsImage()">🖼️ Sauver comme image</button>
     <canvas id="textImage" style="display: none;"></canvas>
     <button onclick="generateQRCode()">📷 QR Code</button>
@@ -300,6 +301,43 @@ function saveLogsAsImage() {
   a.href = img;
   a.download = matchId + ".png";
   a.click();
+}
+function showCSV() {
+  if (!logs.length) {
+    alert("Aucun log à convertir.");
+    return;
+  }
+  const csv = logsToCSV(logs);
+  document.getElementById("logOutput").value = csv;
+  document.getElementById("logs").style.display = "block";
+}
+
+    function logsToCSV(logs) {
+  if (!logs.length) return "";
+
+  // Extraire les en-têtes à partir des clés du premier objet
+  const headers = Object.keys(logs[0]);
+  
+  // Construire le CSV
+  const csvRows = [];
+
+  // Ligne d'en-tête
+  csvRows.push(headers.join(","));
+
+  // Lignes de données
+  for (const log of logs) {
+    const values = headers.map(header => {
+      let val = log[header];
+      // Échapper les guillemets et mettre entre guillemets si besoin
+      if (typeof val === "string" && (val.includes(",") || val.includes('"') || val.includes("\n"))) {
+        val = '"' + val.replace(/"/g, '""') + '"';
+      }
+      return val;
+    });
+    csvRows.push(values.join(","));
+  }
+
+  return csvRows.join("\n");
 }
 
 
