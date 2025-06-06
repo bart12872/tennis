@@ -14,7 +14,7 @@
     }
     button {
       font-size: 1.2em;
-      padding: 15px;
+      padding: 10px;
       margin: 10px;
       width: 90%;
     }
@@ -41,20 +41,20 @@
   <div id="actions">
 
     <!-- Ligne 1 : Point gagné / Faute directe -->
-<div style="display: flex; gap: 4px; margin-bottom: 0px;">
+<div style="display: flex; gap: 2px; margin-bottom: 0px;">
   <button onclick="logAction('point_gagné_faute_adverse')" style="flex: 1;">Pt gagné faute dir adv</button>
   <button onclick="logAction('faute_directe')" style="flex: 1;">Faute directe</button>
 </div>
 <!-- Ligne 2 : Faute non directe / Changer serveur -->
-<div style="display: flex; gap: 4px; margin-bottom: 0px;">
+<div style="display: flex; gap: 2px; margin-bottom: 0px;">
   <button onclick="logAction('point_gagné_coup_gagnant')" style="flex: 1;">Pt gagné cp gagnant</button>
   <button onclick="logAction('faute_non_directe')" style="flex: 1;">Faute non directe</button>
 </div>   
-<div style="display: flex; gap: 4px; margin-bottom: 0px;">
+<div style="display: flex; gap: 2px; margin-bottom: 0px;">
   <button onclick="logAction('1er_service_KO')">1er service KO</button>
   <button onclick="logAction('2eme_service_KO')">2ème service KO</button>
 </div>     
-<div style="display: flex; gap: 4px; margin-bottom: 6px;">
+<div style="display: flex; gap: 2px; margin-bottom: 2px;">
   <button onclick="changeServer()">Changer serveur</button>
 </div>    
     
