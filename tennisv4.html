@@ -49,7 +49,7 @@ as<!DOCTYPE html>
     <button onclick="copyToClipboard()">📋 Copier les données</button>
     <button onclick="clearLogs()">🗑️ Réinitialiser</button>
     <button onclick="downloadMatch()">⬇️ Télécharger</button>
-    <button onclick="sendToNAS()">📡 Envoyer au NAS</button>
+    <button onclick="envoyerAuNas()">📡 Envoyer au NAS</button>
     <button onclick="generateQRCode()">📷 QR Code</button>
     <div id="qrcode" style="margin-top: 20px;"></div>
   </div>
@@ -251,6 +251,21 @@ function sendLogsToNAS(logsJsonString) {
   })
   .then(response => response.text())
   .then(text => alert("Réponse du NAS : " + text))
+  .catch(err => alert("Erreur d'envoi : " + err));
+}
+
+    function envoyerAuNas() {
+  const logsTexte = document.getElementById("logOutput").value;
+
+  fetch("http://192.168.1.100/tennis/upload.php", {
+    method: "POST",
+    headers: {
+      "Content-Type": "text/plain"
+    },
+    body: logsTexte
+  })
+  .then(response => response.text())
+  .then(msg => alert("Réponse du NAS : " + msg))
   .catch(err => alert("Erreur d'envoi : " + err));
 }
     
