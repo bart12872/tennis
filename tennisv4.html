@@ -49,6 +49,7 @@
     <button onclick="copyToClipboard()">📋 Copier les données</button>
     <button onclick="clearLogs()">🗑️ Réinitialiser</button>
     <button onclick="downloadMatch()">⬇️ Télécharger</button>
+    <button onclick="sendToServer()">📡 Envoyer vers PC</button>
     <button onclick="generateQRCode()">📷 QR Code</button>
     <div id="qrcode" style="margin-top: 20px;"></div>
   </div>
@@ -207,7 +208,23 @@ function generateQRCode() {
     alert("Erreur lors de la copie : " + err);
   });
 }
-    
+    function sendToServer() {
+  const ip = "172.29.71.190"; // 🔁 Remplace par l'adresse IP que tu as trouvée avec `ip addr`
+  fetch(`http://${ip}/tennis/upload.php`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify(logs)
+  })
+  .then(response => response.json())
+  .then(result => {
+    alert("Serveur : " + result.message);
+  })
+  .catch(error => {
+    alert("Erreur envoi : " + error);
+  });
+}
   </script>
 </body>
 </html>
