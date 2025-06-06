@@ -54,35 +54,70 @@
   </div>
 
   <script>
-    let matchId ;
+    let matchId;
+    let logs = [];
     let j1Points = 0;
     let j2Points = 0;
     let j1Temp = 0;
     let j2Temp = 0;
     let currentServer = "J1";
-    document.getElementById("startBtn").onclick = () => {
-const d = new Date();
-  const pad = n => n.toString().padStart(2, '0');
-  matchId = "tennis_match_" +pad(d.getHours()) + pad(d.getMinutes()) + pad(d.getSeconds());
-      logs = [];
 
+    // Sauvegarde complète du match en cours dans localStorage
+    function saveCurrentMatch() {
+      localStorage.setItem('tennis_match_en_cours', JSON.stringify({
+        matchId,
+        logs,
+        j1Points,
+        j2Points,
+        j1Temp,
+        j2Temp,
+        currentServer
+      }));
+      // Aussi sauvegarder les logs sous la clé unique pour archives
+      localStorage.setItem("tennis_match_" + matchId, JSON.stringify(logs));
+    }
+
+    // Charger un match en cours au chargement de la page (si existant)
+    window.onload = () => {
+      const saved = localStorage.getItem('tennis_match_en_cours');
+      if (saved) {
+        const savedData = JSON.parse(saved);
+        matchId = savedData.matchId;
+        logs = savedData.logs;
+        j1Points = savedData.j1Points;
+        j2Points = savedData.j2Points;
+        j1Temp = savedData.j1Temp;
+        j2Temp = savedData.j2Temp;
+        currentServer = savedData.currentServer;
+
+        document.getElementById("actions").style.display = "block";
+        document.getElementById("startBtn").style.display = "none";
+        updateScoreboard();
+      }
+    };
+
+    // Début de match
+    document.getElementById("startBtn").onclick = () => {
+      logs = [];
+      const now = new Date();
+      const pad = n => n.toString().padStart(2, '0');
+      matchId = "tennis_match_" + pad(now.getHours()) + pad(now.getMinutes()) + pad(now.getSeconds());
       j1Points = 0;
       j2Points = 0;
       j1Temp = 0;
       j2Temp = 0;
       currentServer = "J1";
       updateScoreboard();
-      localStorage.setItem( matchId, JSON.stringify(logs));
+      saveCurrentMatch();
       document.getElementById("actions").style.display = "block";
       document.getElementById("startBtn").style.display = "none";
       alert("Match commencé !");
     };
 
+    // Enregistrer une action
     function logAction(action) {
       const timestamp = new Date().toISOString();
       logs.push({ matchId, timestamp, action, server: currentServer });
-      localStorage.setItem("tennis_match_" + matchId, JSON.stringify(logs));
-
       if (action === "point_gagné") {
         j1Points++;
         j1Temp++;
@@ -90,18 +125,21 @@ const d = new Date();
         j2Points++;
         j2Temp++;
       }
-
       updateScoreboard();
+      saveCurrentMatch();
     }
 
+    // Changement de serveur
     function changeServer() {
       currentServer = currentServer === "J1" ? "J2" : "J1";
       alert(`Serveur maintenant : ${currentServer}`);
       j1Temp = 0;
       j2Temp = 0;
       updateScoreboard();
+      saveCurrentMatch();
     }
 
+    // Mise à jour du scoreboard
     function updateScoreboard() {
       const j1Serve = currentServer === "J1" ? "⚪ " : "";
       const j2Serve = currentServer === "J2" ? "⚪ " : "";
@@ -109,14 +147,17 @@ const d = new Date();
         `${j1Serve}J1 : ${j1Points} (+${j1Temp}) | ${j2Serve}J2 : ${j2Points} (+${j2Temp})`;
     }
 
+    // Afficher l’historique
     function showLogs() {
       document.getElementById("logs").style.display = "block";
       document.getElementById("logOutput").value = JSON.stringify(logs, null, 2);
     }
 
+    // Réinitialiser tout
     function clearLogs() {
       if (confirm("Supprimer les données du match en cours ?")) {
         localStorage.removeItem("tennis_match_" + matchId);
+        localStorage.removeItem('tennis_match_en_cours');
         logs = [];
         j1Points = 0;
         j2Points = 0;
@@ -126,6 +167,8 @@ const d = new Date();
         updateScoreboard();
         document.getElementById("logOutput").value = "";
         document.getElementById("logs").style.display = "none";
+        document.getElementById("actions").style.display = "none";
+        document.getElementById("startBtn").style.display = "block";
         alert("Données effacées.");
       }
     }
