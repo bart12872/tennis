@@ -50,6 +50,8 @@ as<!DOCTYPE html>
     <button onclick="clearLogs()">🗑️ Réinitialiser</button>
     <button onclick="downloadMatch()">⬇️ Télécharger</button>
     <button onclick="envoyerAuNas()">📡 Envoyer au NAS</button>
+    <button onclick="saveLogsAsImage()">🖼️ Sauver comme image</button>
+    <canvas id="textImage" style="display: none;"></canvas>
     <button onclick="generateQRCode()">📷 QR Code</button>
     <div id="qrcode" style="margin-top: 20px;"></div>
   </div>
@@ -268,6 +270,39 @@ function sendLogsToNAS(logsJsonString) {
   .then(msg => alert("Réponse du NAS : " + msg))
   .catch(err => alert("Erreur d'envoi : " + err));
 }
+function saveLogsAsImage() {
+  const text = JSON.stringify(logs, null, 2);
+  const canvas = document.getElementById("textImage");
+  const ctx = canvas.getContext("2d");
+
+  const lines = text.split('\n');
+  const lineHeight = 20;
+  const width = 800;
+  const height = lines.length * lineHeight + 20;
+
+  canvas.width = width;
+  canvas.height = height;
+
+  ctx.fillStyle = "white";
+  ctx.fillRect(0, 0, width, height);
+  ctx.fillStyle = "black";
+  ctx.font = "16px monospace";
+
+  lines.forEach((line, i) => {
+    ctx.fillText(line, 10, 20 + i * lineHeight);
+  });
+
+  // Générer l'image PNG
+  const img = canvas.toDataURL("image/png");
+
+  // Créer un lien de téléchargement
+  const a = document.createElement("a");
+  a.href = img;
+  a.download = matchId + ".png";
+  a.click();
+}
+
+
     
   </script>
 </body>
