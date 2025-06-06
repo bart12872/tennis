@@ -45,13 +45,18 @@
   <button onclick="logAction('point_gagné')" style="flex: 1;">Point gagné</button>
   <button onclick="logAction('faute_directe')" style="flex: 1;">Faute directe</button>
 </div>
+<!-- Ligne 2 : Faute non directe / Changer serveur -->
+<div style="display: flex; gap: 4px; margin-bottom: 6px;">
+  <button onclick="logAction('change_server')" style="flex: 1;">Changer serveur</button>
+  <button onclick="logAction('faute_non_directe')" style="flex: 1;">Faute non directe</button>
+</div>    
     
     <button onclick="logAction('1er_service_KO')">1er service KO</button>
     <button onclick="logAction('2eme_service_KO')">2ème service KO</button>
 <!--    <button onclick="logAction('point_gagné')">Point gagné</button>       -->
 <!--    <button onclick="logAction('faute_directe')">Point perdu (faute directe)</button>        -->
-    <button onclick="logAction('faute_non_directe')">Point perdu (faute non directe)</button>
-    <button onclick="changeServer()">Changer serveur</button>
+<!--    <button onclick="logAction('faute_non_directe')">Point perdu (faute non directe)</button>  -->
+<!--    <button onclick="changeServer()">Changer serveur</button>   -->
     <button onclick="showLogs()">📋 Voir les données</button>
     <button onclick="copyToClipboardCSV()">📋 Copier les données</button>
     <button onclick="clearLogs()">🗑️ Réinitialiser</button>
