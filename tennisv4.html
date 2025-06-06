@@ -210,7 +210,7 @@ function generateQRCode() {
 }
     function sendToServer() {
   const ip = "192.168.1.101"; // 🔁 Remplace par l'adresse IP que tu as trouvée avec `ip addr`
-  fetch(`http://${ip}/tennis/upload.php`, {
+  fetch(`http://${ip}/tennis/upload.html`, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json'
