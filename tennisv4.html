@@ -69,10 +69,10 @@
     <button onclick="clearLogs()">🗑️ Réinitialiser</button>
     <button onclick="downloadMatch()">⬇️ Télécharger</button>
     <button onclick="showCSV()">📄 Afficher CSV</button>
-    <button onclick="saveLogsAsImage()">🖼️ Sauver comme image</button>
+    <button onclick="saveLogsAsImageCSV()">🖼️ Sauver comme image</button>
      <canvas id="textImage" style="display: none;"></canvas>
-   <button onclick="generateQRCode()">📷 QR Code</button> 
-    <div id="qrcode" style="margin-top: 20px;"></div>   
+ <!--  <button onclick="generateQRCode()">📷 QR Code</button> 
+    <div id="qrcode" style="margin-top: 20px;"></div>   -->
   </div>
 
   <div id="logs">
@@ -210,7 +210,7 @@
   URL.revokeObjectURL(url);
    }
 
-<!--function generateQRCode() {
+function generateQRCode() {
   const data = JSON.stringify(logs);
   document.getElementById("qrcode").innerHTML = ""; // reset
   QRCode.toCanvas(data, { width: 200 }, function (err, canvas) {
@@ -220,7 +220,7 @@
     }
     document.getElementById("qrcode").appendChild(canvas);
   });
-}  -->
+}  
     function copyToClipboard() {
   const data = JSON.stringify(logs, null, 2);
   navigator.clipboard.writeText(data).then(() => {
