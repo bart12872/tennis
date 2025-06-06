@@ -69,7 +69,7 @@
     <button onclick="clearLogs()">🗑️ Réinitialiser</button>
     <button onclick="downloadMatch()">⬇️ Télécharger</button>
     <button onclick="showCSV()">📄 Afficher CSV</button>
-    <button onclick="saveLogsAsImage()">🖼️ Sauver comme image</button>
+    <button onclick="saveLogsAsImageCSV()">🖼️ Sauver comme image</button>
 <!--     <canvas id="textImage" style="display: none;"></canvas>
    <button onclick="generateQRCode()">📷 QR Code</button> 
     <div id="qrcode" style="margin-top: 20px;"></div>   -->
@@ -262,6 +262,45 @@ function saveLogsAsImage() {
   a.download = matchId + ".png";
   a.click();
 }
+
+
+function saveLogsAsImageCSV() {
+  const text = logsToCSVFinal(logs); // CSV généré depuis logs
+  const lines = text.split('\n');
+  const lineHeight = 20;
+  const padding = 10;
+
+  // Mesure dynamique de la largeur maximale
+  const canvas = document.getElementById("textImage");
+  const ctx = canvas.getContext("2d");
+  ctx.font = "14px monospace";
+  const width = Math.max(...lines.map(line => ctx.measureText(line).width)) + padding * 2;
+  const height = lines.length * lineHeight + padding * 2;
+
+  // Configuration du canvas
+  canvas.width = width;
+  canvas.height = height;
+
+  // Dessin fond + texte
+  ctx.fillStyle = "white";
+  ctx.fillRect(0, 0, width, height);
+  ctx.fillStyle = "black";
+  ctx.font = "14px monospace";
+
+  lines.forEach((line, i) => {
+    ctx.fillText(line, padding, padding + (i + 1) * lineHeight - 6);
+  });
+
+  // Générer et télécharger l'image
+  const img = canvas.toDataURL("image/png");
+  const a = document.createElement("a");
+  a.href = img;
+  a.download = matchId + ".png";
+  a.click();
+}
+
+
+    
 function showCSV() {
   if (!logs.length) {
     alert("Aucun log à convertir.");
