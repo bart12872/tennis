@@ -286,7 +286,7 @@ function saveLogsAsImageCSV() {
   const canvas = document.getElementById("textImage");
   const ctx = canvas.getContext("2d");
   ctx.font = "14px monospace";
-  const width = Math.max(...lines.map(line => ctx.measureText(line).width)) + padding * 2;
+  const width = Math.max(...lines.map(line => ctx.measureText(line).width)) + padding * 2 + 60;
   const height = lines.length * lineHeight + padding * 2;
 
   // Configuration du canvas
