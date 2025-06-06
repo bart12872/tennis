@@ -1,131 +1,84 @@
 <!DOCTYPE html>
-<html lang="fr">
+<html>
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Stats Tennis</title>
+  <meta charset="UTF-8">
+  <title>Match Tennis</title>
   <style>
-    body {
-      font-family: sans-serif;
-      text-align: center;
-      padding: 10px;
-      max-width: 320px;
-      margin: auto;
-    }
-    button {
-      font-size: 1.2em;
-      padding: 15px;
-      margin: 10px;
-      width: 90%;
-    }
-    #actions, #logs {
-      display: none;
-    }
-    textarea {
-      width: 100%;
-      height: 200px;
-      margin-top: 20px;
-    }
-    #scoreboard {
-      font-size: 1.2em;
-      margin: 10px 0;
-    }
+    body { font-family: sans-serif; padding: 10px; }
+    button { font-size: 1.2em; margin: 5px; padding: 10px; }
+    .section { margin-top: 20px; }
+    .match-card { border: 1px solid #ccc; padding: 8px; margin-bottom: 10px; border-radius: 5px; }
+    pre { white-space: pre-wrap; word-wrap: break-word; }
   </style>
 </head>
 <body>
-  <h2>Match de tennis</h2>
-  <div id="scoreboard">J1 : 0 | J2 : 0</div>
-  <button id="startBtn">🎾 Début de match</button>
+  <h2>🎾 Match Tennis</h2>
+  <button onclick="startMatch()">Début de match</button>
+  <button onclick="afficherAnciensMatchs()">Voir les anciens matchs</button>
 
-  <div id="actions">
-    <button onclick="logAction('1er_service_KO')">1er service KO</button>
-    <button onclick="logAction('2eme_service_KO')">2ème service KO</button>
-    <button onclick="logAction('point_gagné')">Point gagné</button>
-    <button onclick="logAction('faute_directe')">Point perdu (faute directe)</button>
-    <button onclick="logAction('faute_non_directe')">Point perdu (faute non directe)</button>
-    <button onclick="changeServer()">Changer serveur</button>
-    <button onclick="showLogs()">📋 Voir les données</button>
-    <button onclick="clearLogs()">🗑️ Réinitialiser</button>
-  </div>
-
-  <div id="logs">
-    <h3>Historique</h3>
-    <textarea id="logOutput" readonly></textarea>
-  </div>
+  <div class="section" id="anciens-matchs"></div>
 
   <script>
-    let matchId = Date.now();
-    let logs = [];
-    let j1Points = 0;
-    let j2Points = 0;
-    let j1Temp = 0;
-    let j2Temp = 0;
-    let currentServer = "J1";
+    // Démarre un nouveau match et stocke des données de test
+    function startMatch() {
+      const matchId = "tennis_match_" + Date.now();
+      const matchData = {
+        id: matchId,
+        date: new Date().toISOString(),
+        joueur1: 0,
+        joueur2: 0,
+        log: [
+          { point: 1, gagnant: "J1" },
+          { point: 2, gagnant: "J2" },
+        ]
+      };
+      localStorage.setItem(matchId, JSON.stringify(matchData));
+      alert("Nouveau match enregistré avec ID : " + matchId);
+    }
 
-    document.getElementById("startBtn").onclick = () => {
-      logs = [];
-      matchId = Date.now();
-      j1Points = 0;
-      j2Points = 0;
-      j1Temp = 0;
-      j2Temp = 0;
-      currentServer = "J1";
-      updateScoreboard();
-      localStorage.setItem("tennis_match_" + matchId, JSON.stringify(logs));
-      document.getElementById("actions").style.display = "block";
-      document.getElementById("startBtn").style.display = "none";
-      alert("Match commencé !");
-    };
+    // Affiche tous les anciens matchs stockés
+    function afficherAnciensMatchs() {
+      const container = document.getElementById("anciens-matchs");
+      container.innerHTML = "";
 
-    function logAction(action) {
-      const timestamp = new Date().toISOString();
-      logs.push({ matchId, timestamp, action, server: currentServer });
-      localStorage.setItem("tennis_match_" + matchId, JSON.stringify(logs));
-
-      if (action === "point_gagné") {
-        j1Points++;
-        j1Temp++;
-      } else if (["faute_directe", "faute_non_directe", "2eme_service_KO"].includes(action)) {
-        j2Points++;
-        j2Temp++;
+      const keys = Object.keys(localStorage).filter(k => k.startsWith("tennis_match_"));
+      if (keys.length === 0) {
+        container.innerHTML = "<p>Aucun match trouvé.</p>";
+        return;
       }
 
-      updateScoreboard();
+      keys.sort().reverse(); // les plus récents en premier
+      keys.forEach(key => {
+        const data = JSON.parse(localStorage.getItem(key));
+        const div = document.createElement("div");
+        div.className = "match-card";
+        div.innerHTML = `
+          <strong>${key}</strong><br>
+          <button onclick="exporterMatch('${key}')">📤 Exporter</button>
+          <button onclick="supprimerMatch('${key}')">🗑 Supprimer</button>
+          <pre>${JSON.stringify(data, null, 2)}</pre>
+        `;
+        container.appendChild(div);
+      });
     }
 
-    function changeServer() {
-      currentServer = currentServer === "J1" ? "J2" : "J1";
-      alert(`Serveur maintenant : ${currentServer}`);
-      j1Temp = 0;
-      j2Temp = 0;
-      updateScoreboard();
+    // Exporter un match en fichier .json
+    function exporterMatch(key) {
+      const data = localStorage.getItem(key);
+      const blob = new Blob([data], { type: "application/json" });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = key + ".json";
+      a.click();
+      URL.revokeObjectURL(url);
     }
 
-    function updateScoreboard() {
-      const j1Serve = currentServer === "J1" ? "⚪ " : "";
-      const j2Serve = currentServer === "J2" ? "⚪ " : "";
-      document.getElementById("scoreboard").textContent =
-        `${j1Serve}J1 : ${j1Points} (+${j1Temp}) | ${j2Serve}J2 : ${j2Points} (+${j2Temp})`;
-    }
-
-    function showLogs() {
-      document.getElementById("logs").style.display = "block";
-      document.getElementById("logOutput").value = JSON.stringify(logs, null, 2);
-    }
-
-    function clearLogs() {
-      if (confirm("Supprimer les données du match en cours ?")) {
-        localStorage.removeItem("tennis_match_" + matchId);
-        logs = [];
-        j1Points = 0;
-        j2Points = 0;
-        j1Temp = 0;
-        j2Temp = 0;
-        currentServer = "J1";
-        updateScoreboard();
-        document.getElementById("logOutput").value = "";
-        document.getElementById("logs").style.display = "none";
-        alert("Données effacées.");
+    // Supprimer un match du localStorage
+    function supprimerMatch(key) {
+      if (confirm("Supprimer définitivement ce match ?")) {
+        localStorage.removeItem(key);
+        afficherAnciensMatchs(); // rafraîchir la liste
       }
     }
   </script>
