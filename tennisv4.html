@@ -46,6 +46,7 @@
     <button onclick="logAction('faute_non_directe')">Point perdu (faute non directe)</button>
     <button onclick="changeServer()">Changer serveur</button>
     <button onclick="showLogs()">📋 Voir les données</button>
+    <button onclick="copyToClipboard()">📋 Copier les données</button>
     <button onclick="clearLogs()">🗑️ Réinitialiser</button>
     <button onclick="downloadMatch()">⬇️ Télécharger</button>
     <button onclick="generateQRCode()">📷 QR Code</button>
@@ -196,6 +197,14 @@ function generateQRCode() {
       return;
     }
     document.getElementById("qrcode").appendChild(canvas);
+  });
+}
+    function copyToClipboard() {
+  const data = JSON.stringify(logs, null, 2);
+  navigator.clipboard.writeText(data).then(() => {
+    alert("Données copiées dans le presse-papiers !");
+  }).catch(err => {
+    alert("Erreur lors de la copie : " + err);
   });
 }
     
