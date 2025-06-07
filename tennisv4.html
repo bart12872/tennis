@@ -88,6 +88,7 @@
     let j1Temp = 0;
     let j2Temp = 0;
     let currentServer = "J1";
+    let isSecondServe = false;
 
     // Sauvegarde complète du match en cours dans localStorage
     function saveCurrentMatch() {
@@ -148,9 +149,13 @@
       if (["point_gagné_faute_dir_adverse", "point_gagné_coup_gagnant"].includes(action)) {
         j1Points++;
         j1Temp++;
+        isSecondServe = false;
       } else if (["faute_directe", "faute_non_directe", "2eme_service_KO"].includes(action)) {
         j2Points++;
         j2Temp++;
+        isSecondServe = false;
+      } else if (["1er_service_KO", "xxx_KO"].includes(action)) {
+        isSecondServe = true;
       }
       updateScoreboard();
       saveCurrentMatch();
@@ -168,8 +173,14 @@
 
     // Mise à jour du scoreboard
     function updateScoreboard() {
-      const j1Serve = currentServer === "J1" ? "⚪ " : "";
-      const j2Serve = currentServer === "J2" ? "⚪ " : "";
+      let j1Serve = "";
+      let j2Serve = "";
+
+  if (currentServer === "J1") {
+    j1Serve = isSecondServe ? "⚪⚪ " : "⚪ ";
+  } else if (currentServer === "J2") {
+    j2Serve = isSecondServe ? "⚪⚪ " : "⚪ ";
+  }
       document.getElementById("scoreboard").textContent =
         `${j1Serve}J1 : ${j1Points} (+${j1Temp}) | ${j2Serve}J2 : ${j2Points} (+${j2Temp})`;
     }
