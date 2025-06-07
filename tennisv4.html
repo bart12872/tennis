@@ -550,11 +550,13 @@ function logsToCSV4Final(logs) {
 
   function scoreTennis() {
     if (inTiebreak) {
-      return `Set ${currentSet + 1} : ${sets[currentSet][0]}-${sets[currentSet][1]}, TB ${points[0]}-${points[1]}`;
+      //return `Set ${currentSet + 1} : ${sets[currentSet][0]}-${sets[currentSet][1]}, TB ${points[0]}-${points[1]}`;
+      return ``;
     } else {
       const p1 = getTennisPoint(points[0], points[1]);
       const p2 = getTennisPoint(points[1], points[0]);
-      return `Set ${currentSet + 1} : ${sets[currentSet][0]}-${sets[currentSet][1]}, Jeu ${jeux[0]}-${jeux[1]}, Pts ${p1}-${p2}`;
+      //return `Set ${currentSet + 1} : ${sets[currentSet][0]}-${sets[currentSet][1]}, Jeu ${jeux[0]}-${jeux[1]}, Pts ${p1}-${p2}`;
+      return ``;
     }
   }
 
