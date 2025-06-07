@@ -615,7 +615,7 @@ function logsToCSV4Final(logs) {
   for (const log of logs) {
     const action = log.action;
 
-    if (action === "point_gagné") {
+    if (["point_gagné_faute_dir_adverse", "point_gagné_coup_gagnant"].includes(action)) {
       winPoint(0);
     } else if (["faute_directe", "faute_non_directe", "2eme_service_KO"].includes(action)) {
       winPoint(1);
