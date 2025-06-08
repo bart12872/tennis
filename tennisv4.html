@@ -651,17 +651,19 @@ function logsToCSVCompact(logs) {
   csvRows.push("Heure;Action;Score");
 
   const actionCodes = {
-    point_gagné_faute_dir_adverse: "PGFD",
-    point_gagné_coup_gagnant: "PGC",
+    point_gagné_faute_dir_adverse: "PGFDA",
+    point_gagné_coup_gagnant: "PGCG",
     faute_directe: "FD",
     faute_non_directe: "FND",
+    point_gagné_faute_adverse:"PGFA"
     "1er_service_KO": "S1X",
     "2eme_service_KO": "S2X",
     change_server: "CS"
   };
 
   for (const log of logs) {
-    const time = log.timestamp;  //   ?.split(" ")[1] || ""; // extrait heure uniquement
+//    const time = log.timestamp;  //   ?.split(" ")[1] || ""; // extrait heure uniquement
+    const time = log.timestamp?.split("T")[1]?.replace(/:/g, "") || "";
     const servi = log.server;  //   ?.split(" ")[1] || ""; // extrait heure uniquement
     const action = actionCodes[log.action] || log.action;
     //const scoreT = scoreTennis(); // exemple : "0-0, 15-30"
