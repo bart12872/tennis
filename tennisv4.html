@@ -510,14 +510,6 @@ function logsToCSV3(logs) {
   return csvRows.join("\n");
 }
 
-//    function copyToClipboardCSV() {
-//  const csv = logsToCSV4Final(logs);
-//  navigator.clipboard.writeText(csv).then(() => {
-//    alert("Données CSV copiées dans le presse-papiers !");
-//  }).catch(err => {
-//    alert("Erreur lors de la copie : " + err);
-//  });
-//}
     
 function logsToCSV4Final(logs) {
   if (!logs.length) return "";
@@ -653,7 +645,7 @@ function copyToClipboardCSV() {
     alert("Erreur lors de la copie : " + err);
   });
 }
-
+    
 function logsToCSVCompact(logs) {
   const csvRows = [];
   csvRows.push("Heure;Action;Score");
