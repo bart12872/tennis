@@ -663,9 +663,9 @@ function logsToCSVCompact(logs) {
   for (const log of logs) {
     const time = log.timestamp?.split(" ")[1] || ""; // extrait heure uniquement
     const action = actionCodes[log.action] || log.action;
-    const scoreT = scoreTennis(); // exemple : "0-0, 15-30"
+    //const scoreT = scoreTennis(); // exemple : "0-0, 15-30"
 
-    csvRows.push(`${time};${action};${scoreT}`);
+    csvRows.push(`${time};${action}`);
   }
 
   return csvRows.join("\n");
