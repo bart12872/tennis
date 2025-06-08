@@ -638,7 +638,7 @@ function logsToCSV4Final(logs) {
 }
 
 function copyToClipboardCSV() {
-  const csv = logsToCSV4Final(logs);
+  const csv = logsToCSVCompact(logs);
   navigator.clipboard.writeText(csv).then(() => {
     alert("Données CSV compactes copiées dans le presse-papiers !");
   }).catch(err => {
