@@ -510,14 +510,15 @@ function logsToCSV3(logs) {
   return csvRows.join("\n");
 }
 
-    function copyToClipboardCSV() {
-  const csv = logsToCSV4Final(logs);
-  navigator.clipboard.writeText(csv).then(() => {
-    alert("Données CSV copiées dans le presse-papiers !");
-  }).catch(err => {
-    alert("Erreur lors de la copie : " + err);
-  });
-}
+//    function copyToClipboardCSV() {
+//  const csv = logsToCSV4Final(logs);
+//  navigator.clipboard.writeText(csv).then(() => {
+//    alert("Données CSV copiées dans le presse-papiers !");
+//  }).catch(err => {
+//    alert("Erreur lors de la copie : " + err);
+//  });
+//}
+    
 function logsToCSV4Final(logs) {
   if (!logs.length) return "";
 
@@ -644,7 +645,40 @@ function logsToCSV4Final(logs) {
   return csvRows.join("\n");
 }
 
+function copyToClipboardCSV() {
+  const csv = logsToCSVCompact(logs);
+  navigator.clipboard.writeText(csv).then(() => {
+    alert("Données CSV compactes copiées dans le presse-papiers !");
+  }).catch(err => {
+    alert("Erreur lors de la copie : " + err);
+  });
+}
 
+function logsToCSVCompact(logs) {
+  const csvRows = [];
+  csvRows.push("Heure;Action;Score");
+
+  const actionCodes = {
+    point_gagné_faute_dir_adverse: "PGFD",
+    point_gagné_coup_gagnant: "PGC",
+    faute_directe: "FD",
+    faute_non_directe: "FND",
+    "1er_service_KO": "S1X",
+    "2eme_service_KO": "S2X",
+    change_server: "CS"
+  };
+
+  for (const log of logs) {
+    const time = log.timestamp?.split(" ")[1] || ""; // extrait heure uniquement
+    const action = actionCodes[log.action] || log.action;
+    const scoreT = scoreTennis(); // exemple : "0-0, 15-30"
+
+    csvRows.push(`${time};${action};${scoreT}`);
+  }
+
+  return csvRows.join("\n");
+}
+  
     
   </script>
 </body>
