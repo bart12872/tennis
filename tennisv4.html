@@ -661,11 +661,12 @@ function logsToCSVCompact(logs) {
   };
 
   for (const log of logs) {
-    const time = log.timestamp?.split(" ")[1] || ""; // extrait heure uniquement
+    const time = log.timestamp;  //   ?.split(" ")[1] || ""; // extrait heure uniquement
+    const servi = log.server;  //   ?.split(" ")[1] || ""; // extrait heure uniquement
     const action = actionCodes[log.action] || log.action;
     //const scoreT = scoreTennis(); // exemple : "0-0, 15-30"
 
-    csvRows.push(`${time};${action}`);
+    csvRows.push(`${time};${servi};${action}`);
   }
 
   return csvRows.join("\n");
