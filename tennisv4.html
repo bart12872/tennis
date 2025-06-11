@@ -74,6 +74,7 @@
 <!--    <button onclick="logAction('faute_directe')">Point perdu (faute directe)</button>        -->
 <!--    <button onclick="logAction('faute_non_directe')">Point perdu (faute non directe)</button>  -->
 <!--    <button onclick="changeServer()">Changer serveur</button>   -->
+    <button onclick="logAction('Fin_set')">Fin Set</button>
     <button onclick="showLogs()">📋 Voir les données</button>
     <button onclick="copyToClipboardCSV()">📋 Copier les données</button>
     <button onclick="clearLogs()">🗑️ Réinitialiser</button>
@@ -110,6 +111,7 @@
         j1Temp,
         j2Temp,
         currentServer
+        currentSet
       }));
       // Aussi sauvegarder les logs sous la clé unique pour archives
       localStorage.setItem("tennis_match_" + matchId, JSON.stringify(logs));
@@ -127,7 +129,7 @@
         j1Temp = savedData.j1Temp;
         j2Temp = savedData.j2Temp;
         currentServer = savedData.currentServer;
-
+        currentSet = savedData.currentSet;
         document.getElementById("actions").style.display = "block";
         document.getElementById("startBtn").style.display = "none";
         updateScoreboard();
@@ -145,6 +147,7 @@
       j1Temp = 0;
       j2Temp = 0;
       currentServer = "J1";
+      currentSet = 1;      
       updateScoreboard();
       saveCurrentMatch();
       document.getElementById("actions").style.display = "block";
@@ -176,7 +179,12 @@
         isSecondServe = false;
       } else if (["1er_service_KO", "xxx_KO"].includes(action)) {
         isSecondServe = true;
-      }
+      } else if (["Fin_set"].includes(action)) {
+        currentSet++;
+        j1Temp = 0;
+        j2Temp = 0;
+        isSecondServe = false;
+      } 
       updateScoreboard();
       saveCurrentMatch();
     }
@@ -187,6 +195,7 @@
       //alert(`Serveur maintenant : ${currentServer}`);
       j1Temp = 0;
       j2Temp = 0;
+      isSecondServe = false;
       updateScoreboard();
       saveCurrentMatch();
     }
