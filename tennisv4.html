@@ -150,9 +150,19 @@
         j1Points++;
         j1Temp++;
         isSecondServe = false;
-      } else if (["faute_directe", "faute_non_directe", "2eme_service_KO"].includes(action)) {
+      } else if (["faute_directe", "faute_non_directe"].includes(action)) {
         j2Points++;
         j2Temp++;
+        isSecondServe = false;
+      } else if (["2eme_service_KO"].includes(action)) {
+        // Double faute = point au receveur
+        if (server === "J1") {
+          j2Points++;
+          j2Temp++;
+        } else {
+          j1Points++;
+          j1Temp++;
+        }
         isSecondServe = false;
       } else if (["1er_service_KO", "xxx_KO"].includes(action)) {
         isSecondServe = true;
