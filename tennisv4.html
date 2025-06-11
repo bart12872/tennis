@@ -156,7 +156,7 @@
         isSecondServe = false;
       } else if (["2eme_service_KO"].includes(action)) {
         // Double faute = point au receveur
-        if (server === "J1") {
+        if (currentServer === "J1") {
           j2Points++;
           j2Temp++;
         } else {
