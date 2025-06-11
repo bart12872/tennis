@@ -18,6 +18,16 @@
       margin: 4px;
       width: 90%;
     }
+    .btn-gagne {
+    background-color: #d4edda; /* vert clair */
+    color: #155724;             /* texte vert foncé */
+   }
+
+   .btn-perdu {
+    background-color: #f8d7da; /* rouge clair */
+    color: #721c24;             /* texte rouge foncé */
+   }
+    
     #actions, #logs {
       display: none;
     }
@@ -40,15 +50,15 @@
 
   <div id="actions">
 
-    <!-- Ligne 1 : Point gagné / Faute directe -->
+<!-- Ligne 1 : Point gagné Faute directe adverse / Point perdu Faute directe -->
 <div style="display: flex; gap: 2px; margin-bottom: 0px;">
-  <button onclick="logAction('point_gagné_faute_dir_adverse')" style="flex: 1;">Pt gagné faute dir adv</button>
-  <button onclick="logAction('faute_directe')" style="flex: 1;">Faute directe</button>
+  <button onclick="logAction('point_gagné_faute_dir_adverse')" class="btn-gagne" style="flex: 1;">Pt gagné faute dir adv</button>
+  <button onclick="logAction('faute_directe')" class="btn-perdu" style="flex: 1;">Faute directe</button>
 </div>
-<!-- Ligne 2 : Faute non directe / Changer serveur -->
+<!-- Ligne 2 : Point Gagné Faute non directe / Point perdu Hors Fautes directe -->
 <div style="display: flex; gap: 2px; margin-bottom: 0px;">
-  <button onclick="logAction('point_gagné_coup_gagnant')" style="flex: 1;">Pt gagné (hors faute adv)</button>
-  <button onclick="logAction('faute_non_directe')" style="flex: 1;">Faute non directe</button>
+  <button onclick="logAction('point_gagné_coup_gagnant')" class="btn-gagne" style="flex: 1;">Pt gagné (hors faute adv)</button>
+  <button onclick="logAction('faute_non_directe')" class="btn-perdu" style="flex: 1;">Faute non directe</button>
 </div>   
 <div style="display: flex; gap: 2px; margin-bottom: 0px;">
   <button onclick="logAction('1er_service_KO')">1er service KO</button>
