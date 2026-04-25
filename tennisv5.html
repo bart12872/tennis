@@ -234,8 +234,10 @@
     function changeServer() {
       currentServer = currentServer === "J1" ? "J2" : "J1";
       //alert(`Serveur maintenant : ${currentServer}`);
-      j1Temp = 0;
-      j2Temp = 0;
+	if (!inTieBreak) {    
+      	j1Temp = 0;
+      	j2Temp = 0;
+        }
       isSecondServe = false;
       updateScoreboard();
       saveCurrentMatch();
