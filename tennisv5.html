@@ -130,7 +130,8 @@
         j1Temp,
         j2Temp,
         currentServer,
-        currentSet
+        currentSet,
+        inTieBreak
       }));
       // Aussi sauvegarder les logs sous la clé unique pour archives
       localStorage.setItem("tennis_match_" + matchId, JSON.stringify(logs));
@@ -225,7 +226,7 @@
         currentServer = currentServer === "J1" ? "J2" : "J1";
         isSecondServe = false;
       } 
-
+updat
       updateScoreboard();
       saveCurrentMatch();
     }
@@ -244,7 +245,6 @@
     }
 
  
-  logs.push({ matchId, timestamp: new Date().toISOString(), action: "debut_tie_break", server: currentServer });
  
 
     // Mise à jour du scoreboard
@@ -257,8 +257,9 @@
   } else if (currentServer === "J2") {
     j2Serve = isSecondServe ? "⚪⚪ " : "⚪ ";
   }
+const tbLabel = inTieBreak ? " 🔁TB" : "";
       document.getElementById("scoreboard").textContent =
-        `[S${currentSet}]- ${j1Serve}J1 : ${j1Points} (+${j1Temp}) | ${j2Serve}J2 : ${j2Points} (+${j2Temp})`;
+        `[S${currentSet}${tbLabel}]- ${j1Serve}J1 : ${j1Points} (+${j1Temp}) | ${j2Serve}J2 : ${j2Points} (+${j2Temp})`;
     }
 
     // Afficher l’historique
