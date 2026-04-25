@@ -1,0 +1,758 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Stats Tennis</title>
+  <style>
+    body {
+      font-family: sans-serif;
+      text-align: center;
+      padding: 10px;
+      max-width: 320px;
+      margin: auto;
+    }
+    button {
+      font-size: 1.2em;
+      padding: 12px;
+      margin: 4px;
+      width: 90%;
+    }
+    .btn-gagne {
+    background-color: #d4edda; /* vert clair */
+    color: #155724;             /* texte vert foncé */
+   }
+
+   .btn-perdu {
+    background-color: #f8d7da; /* rouge clair */
+    color: #721c24;             /* texte rouge foncé */
+   }
+
+    #actions, #logs {
+      display: none;
+    }
+    textarea {
+      width: 100%;
+      height: 200px;
+      margin-top: 20px;
+    }
+    #scoreboard {
+      font-size: 1.2em;
+      margin: 10px 0;
+    }
+  </style>
+  <script src="https://cdn.jsdelivr.net/npm/qrcode/build/qrcode.min.js"></script>  
+</head>
+<body>
+  <h3>Match de tennis</h3>
+  <div id="scoreboard">J1 : 0 | J2 : 0</div>
+  <button id="startBtn">🎾 Début de match</button>
+
+  <div id="actions">
+
+<!-- Ligne 1 : Point gagné Faute directe adverse / Point perdu Faute directe -->
+<div style="display: flex; gap: 2px; margin-bottom: 0px;">
+  <button onclick="logAction('point_gagné_faute_dir_adverse')" class="btn-gagne" style="flex: 1;">Pt gagné faute dir adv</button>
+<!--   <button onclick="logAction('faute_directe')" class="btn-perdu" style="flex: 1;">Faute directe</button>   -->
+
+  <div style="display: flex; flex-direction: column; flex: 1; gap: 2px;">
+    <button onclick="logAction('faute_directe')" class="btn-perdu" style="flex: 1;">Faute directe</button>
+    <button onclick="logAction('service_non_renvoye')" style="flex: 1;">serv gagnant</button>
+  </div>  
+
+</div>
+<!-- Ligne 2 : Point Gagné Faute non directe / Point perdu Hors Fautes directe -->
+<div style="display: flex; gap: 2px; margin-bottom: 0px;">
+  <button onclick="logAction('point_gagné_coup_gagnant')" class="btn-gagne" style="flex: 1;">Pt gagné (hors faute adv)</button>
+  
+    <button onclick="logAction('faute_non_directe')" class="btn-perdu" style="flex: 1;">Faute non directe</button>
+  
+  
+</div>
+
+<!-- Ligne 3 : Points au filet -->
+<div style="display: flex; gap: 2px; margin-bottom: 0px;">
+  <button onclick="logAction('point_gagné_au_filet')" class="btn-gagne" style="flex: 1;">Pt gagné au filet</button>
+  <button onclick="logAction('point_perdu_au_filet')" class="btn-perdu" style="flex: 1;">Pt perdu au filet</button>
+</div>
+   
+<div style="display: flex; gap: 2px; margin-bottom: 0px;">
+  <button onclick="logAction('1er_service_KO')">1er service KO</button>
+  <button onclick="logAction('2eme_service_KO')">2ème service KO</button>
+</div>     
+<div style="display: flex; gap: 2px; margin-bottom: 6px;">
+  <button onclick="changeServer()">Changer serveur</button>
+</div>    
+    
+ <!--   <button onclick="logAction('1er_service_KO')">1er service KO</button>  -->
+<!--   <button onclick="logAction('2eme_service_KO')">2ème service KO</button> -->
+<!--    <button onclick="logAction('point_gagné')">Point gagné</button>       -->
+<!--    <button onclick="logAction('faute_directe')">Point perdu (faute directe)</button>        -->
+<!--    <button onclick="logAction('faute_non_directe')">Point perdu (faute non directe)</button>  -->
+<!--    <button onclick="changeServer()">Changer serveur</button>   -->
+    <button onclick="logAction('Deb_TieB')">🔁 Début tie-break</button>
+    <button onclick="logAction('Fin_set')">Fin Set</button>
+    <button onclick="logAction('Erreur_detectee')">Erreur</button>
+    <button onclick="showLogs()">📋 Voir les données</button>
+    <button onclick="copyToClipboardCSV()">📋 Copier les données</button>
+    <button onclick="clearLogs()">🗑️ Réinitialiser</button>
+    <button onclick="downloadMatchCSV()">⬇️ Télécharger</button>
+    <button onclick="showCSV()">📄 Afficher CSV</button>
+    <button onclick="saveLogsAsImage()">🖼️ Sauver comme image</button>
+     <canvas id="textImage" style="display: none;"></canvas>
+ <!--  <button onclick="generateQRCode()">📷 QR Code</button> 
+    <div id="qrcode" style="margin-top: 20px;"></div>   -->
+  </div>
+
+  <div id="logs">
+    <h3>Historique</h3>
+    <textarea id="logOutput" readonly></textarea>
+  </div>
+
+  <script>
+    let matchId;
+    let logs = [];
+    let j1Points = 0;
+    let j2Points = 0;
+    let j1Temp = 0;
+    let j2Temp = 0;
+    let currentServer = "J1";
+    let isSecondServe = false;
+    let inTieBreak = false;
+
+    // Sauvegarde complète du match en cours dans localStorage
+    function saveCurrentMatch() {
+      localStorage.setItem('tennis_match_en_cours', JSON.stringify({
+        matchId,
+        logs,
+        j1Points,
+        j2Points,
+        j1Temp,
+        j2Temp,
+        currentServer,
+        currentSet
+      }));
+      // Aussi sauvegarder les logs sous la clé unique pour archives
+      localStorage.setItem("tennis_match_" + matchId, JSON.stringify(logs));
+    }
+
+    // Charger un match en cours au chargement de la page (si existant)
+    window.onload = () => {
+      const saved = localStorage.getItem('tennis_match_en_cours');
+      if (saved) {
+        const savedData = JSON.parse(saved);
+        matchId = savedData.matchId;
+        logs = savedData.logs;
+        j1Points = savedData.j1Points;
+        j2Points = savedData.j2Points;
+        j1Temp = savedData.j1Temp;
+        j2Temp = savedData.j2Temp;
+        currentServer = savedData.currentServer;
+        currentSet = savedData.currentSet;
+        document.getElementById("actions").style.display = "block";
+        document.getElementById("startBtn").style.display = "none";
+        updateScoreboard();
+      }
+    };
+
+    // Début de match
+    document.getElementById("startBtn").onclick = () => {
+      logs = [];
+      const now = new Date();
+      const pad = n => n.toString().padStart(2, '0');
+      matchId = "tennis_match_" + pad(now.getHours()) + pad(now.getMinutes()) + pad(now.getSeconds());
+      j1Points = 0;
+      j2Points = 0;
+      j1Temp = 0;
+      j2Temp = 0;
+      currentServer = "J1";
+      currentSet = 1;      
+      updateScoreboard();
+      saveCurrentMatch();
+      document.getElementById("actions").style.display = "block";
+      document.getElementById("startBtn").style.display = "none";
+      alert("Match commencé !");
+    };
+
+    // Enregistrer une action
+    function logAction(action) {
+      const timestamp = new Date().toISOString();
+      logs.push({ matchId, timestamp, action, server: currentServer });
+      if (["point_gagné_faute_dir_adverse", "point_gagné_coup_gagnant", "point_gagné_au_filet"].includes(action)) {
+        j1Points++;
+        j1Temp++;
+        isSecondServe = false;
+      } else if (["faute_directe", "faute_non_directe", "point_perdu_au_filet"].includes(action)) {
+        j2Points++;
+        j2Temp++;
+        isSecondServe = false;
+      } 
+      else if (["service_non_renvoye"].includes(action)) {
+        // Service non renvoyé = point au serveur
+        if (currentServer === "J1") {
+          j1Points++;
+          j1Temp++;
+        } else {
+          j2Points++;
+          j2Temp++;
+        }
+        isSecondServe = false;
+      } 
+      
+       else if (["2eme_service_KO"].includes(action)) {
+        // Double faute = point au receveur
+        if (currentServer === "J1") {
+          j2Points++;
+          j2Temp++;
+        } else {
+          j1Points++;
+          j1Temp++;
+        }
+        isSecondServe = false;
+      } else if (["1er_service_KO", "xxx_KO"].includes(action)) {
+        isSecondServe = true;
+      } else if (["Fin_set"].includes(action)) {
+        currentSet++;
+        j1Temp = 0;
+        j2Temp = 0;
+        inTieBreak = false;   // ← retour au mode normal
+        currentServer = currentServer === "J1" ? "J2" : "J1";
+        isSecondServe = false;
+      } else if (["Deb_tieb"].includes(action)) {
+        inTieBreak = true;
+        j1Temp = 0;
+        j2Temp = 0;
+        currentServer = currentServer === "J1" ? "J2" : "J1";
+        isSecondServe = false;
+      } 
+
+      updateScoreboard();
+      saveCurrentMatch();
+    }
+
+    // Changement de serveur
+    function changeServer() {
+      currentServer = currentServer === "J1" ? "J2" : "J1";
+      //alert(`Serveur maintenant : ${currentServer}`);
+      j1Temp = 0;
+      j2Temp = 0;
+      isSecondServe = false;
+      updateScoreboard();
+      saveCurrentMatch();
+    }
+
+ 
+  logs.push({ matchId, timestamp: new Date().toISOString(), action: "debut_tie_break", server: currentServer });
+ 
+
+    // Mise à jour du scoreboard
+    function updateScoreboard() {
+      let j1Serve = "";
+      let j2Serve = "";
+
+  if (currentServer === "J1") {
+    j1Serve = isSecondServe ? "⚪⚪ " : "⚪ ";
+  } else if (currentServer === "J2") {
+    j2Serve = isSecondServe ? "⚪⚪ " : "⚪ ";
+  }
+      document.getElementById("scoreboard").textContent =
+        `[S${currentSet}]- ${j1Serve}J1 : ${j1Points} (+${j1Temp}) | ${j2Serve}J2 : ${j2Points} (+${j2Temp})`;
+    }
+
+    // Afficher l’historique
+    function showLogs() {
+      document.getElementById("logs").style.display = "block";
+      document.getElementById("logOutput").value = JSON.stringify(logs, null, 2);
+    }
+
+    // Réinitialiser tout
+    function clearLogs() {
+      if (confirm("Supprimer les données du match en cours ?")) {
+        localStorage.removeItem("tennis_match_" + matchId);
+        localStorage.removeItem('tennis_match_en_cours');
+        logs = [];
+        j1Points = 0;
+        j2Points = 0;
+        j1Temp = 0;
+        j2Temp = 0;
+        currentServer = "J1";
+        updateScoreboard();
+        document.getElementById("logOutput").value = "";
+        document.getElementById("logs").style.display = "none";
+        document.getElementById("actions").style.display = "none";
+        document.getElementById("startBtn").style.display = "block";
+        alert("Données effacées.");
+      }
+    }
+
+    function downloadMatch() {
+  const blob = new Blob([JSON.stringify(logs, null, 2)], { type: "application/json" });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = matchId + ".json";
+  a.click();
+  URL.revokeObjectURL(url);
+   }
+
+    function downloadMatchCSV() {
+  const csv = logsToCSV4Final(logs); // Cette fonction doit transformer tes logs en CSV
+  const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = matchId + ".csv"; // Nom du fichier
+  a.click();
+  URL.revokeObjectURL(url);
+}
+
+function generateQRCode() {
+  const data = JSON.stringify(logs);
+  document.getElementById("qrcode").innerHTML = ""; // reset
+  QRCode.toCanvas(data, { width: 200 }, function (err, canvas) {
+    if (err) {
+      alert("Erreur QR code : " + err);
+      return;
+    }
+    document.getElementById("qrcode").appendChild(canvas);
+  });
+}  
+    function copyToClipboard() {
+  const data = JSON.stringify(logs, null, 2);
+  navigator.clipboard.writeText(data).then(() => {
+    alert("Données copiées dans le presse-papiers !");
+  }).catch(err => {
+    alert("Erreur lors de la copie : " + err);
+  });
+}
+
+    
+function saveLogsAsImage() {
+//  const text = JSON.stringify(logs, null, 2);
+  const text = logsToCSV4Final(logs); // CSV généré depuis logs
+  const canvas = document.getElementById("textImage");
+  const ctx = canvas.getContext("2d");
+
+  const lines = text.split('\n');
+  const lineHeight = 20;
+  const width = 1600;
+  const height = lines.length * lineHeight + 20;
+
+  canvas.width = width;
+  canvas.height = height;
+
+  ctx.fillStyle = "white";
+  ctx.fillRect(0, 0, width, height);
+  ctx.fillStyle = "black";
+  ctx.font = "16px monospace";
+
+  lines.forEach((line, i) => {
+    ctx.fillText(line, 10, 20 + i * lineHeight);
+  });
+
+  // Générer l'image PNG
+  const img = canvas.toDataURL("image/png");
+
+  // Créer un lien de téléchargement
+  const a = document.createElement("a");
+  a.href = img;
+  a.download = matchId + ".png";
+  a.click();
+}
+
+
+function saveLogsAsImageCSV() {
+  const text = logsToCSV4Final(logs); // CSV généré depuis logs
+  const lines = text.split('\n');
+  const lineHeight = 20;
+  const padding = 10;
+
+  // Mesure dynamique de la largeur maximale
+  const canvas = document.getElementById("textImage");
+  const ctx = canvas.getContext("2d");
+  ctx.font = "14px monospace";
+  const width = Math.max(...lines.map(line => ctx.measureText(line).width)) + padding * 2 + 60;
+  const height = lines.length * lineHeight + padding * 2;
+
+  // Configuration du canvas
+  canvas.width = width;
+  canvas.height = height;
+
+  // Dessin fond + texte
+  ctx.fillStyle = "white";
+  ctx.fillRect(0, 0, width, height);
+  ctx.fillStyle = "black";
+  ctx.font = "14px monospace";
+
+  lines.forEach((line, i) => {
+    ctx.fillText(line, padding, padding + (i + 1) * lineHeight - 6);
+  });
+
+  // Générer et télécharger l'image
+  const img = canvas.toDataURL("image/png");
+  const a = document.createElement("a");
+  a.href = img;
+  a.download = matchId + ".png";
+  a.click();
+}
+
+
+    
+function showCSV() {
+  if (!logs.length) {
+    alert("Aucun log à convertir.");
+    return;
+  }
+  const csv = logsToCSV3(logs);
+  document.getElementById("logOutput").value = csv;
+  document.getElementById("logs").style.display = "block";
+}
+
+    function logsToCSV(logs) {
+  if (!logs.length) return "";
+
+  // Extraire les en-têtes à partir des clés du premier objet
+  const headers = Object.keys(logs[0]);
+  
+  // Construire le CSV
+  const csvRows = [];
+
+  // Ligne d'en-tête
+  csvRows.push(headers.join(","));
+
+  // Lignes de données
+  for (const log of logs) {
+    const values = headers.map(header => {
+      let val = log[header];
+      // Échapper les guillemets et mettre entre guillemets si besoin
+      if (typeof val === "string" && (val.includes(",") || val.includes('"') || val.includes("\n"))) {
+        val = '"' + val.replace(/"/g, '""') + '"';
+      }
+      return val;
+    });
+    csvRows.push(values.join(","));
+  }
+
+  return csvRows.join("\n");
+}
+
+function logsToCSV2(logs) {
+  if (!logs.length) return "";
+
+  const headers = Object.keys(logs[0]).concat("score");
+  const csvRows = [headers.join(",")];
+
+  let j1 = 0, j2 = 0, j1Temp = 0, j2Temp = 0;
+
+  for (const log of logs) {
+    const action = log.action;
+    if (action === "point_gagné") {
+      j1++; j1Temp++;
+    } else if (["faute_directe", "faute_non_directe", "service_non_renvoye", "2eme_service_KO"].includes(action)) {
+      j2++; j2Temp++;
+    }
+
+    const score = `J1: ${j1} (+${j1Temp}) | J2: ${j2} (+${j2Temp})`;
+
+    const values = Object.keys(log).map(k => {
+      let val = log[k];
+      if (typeof val === "string" && (val.includes(",") || val.includes('"') || val.includes("\n"))) {
+        val = '"' + val.replace(/"/g, '""') + '"';
+      }
+      return val;
+    });
+
+    values.push(`"${score}"`);
+    csvRows.push(values.join(","));
+  }
+
+  return csvRows.join("\n");
+}
+function logsToCSV3(logs) {
+  if (!logs.length) return "";
+
+  const headers = Object.keys(logs[0]).concat("score");
+  const csvRows = [headers.join(",")];
+
+  let sets = [[0, 0]]; // [J1, J2] par set
+  let currentSet = 0;
+  let jeux = [0, 0];
+  let points = [0, 0];
+  let advantage = null;
+  let inTiebreak = false;
+
+  let currentServer = logs[0]?.server || "J1";
+
+  function getTennisPoint(p1, p2) {
+    const labels = ["0", "15", "30", "40"];
+    if (p1 >= 3 && p2 >= 3) {
+      if (p1 === p2) return "40A";
+      if (p1 > p2) return "AD";
+      return "";
+    }
+    return labels[p1] || "AD";
+  }
+
+  function scoreToString() {
+    if (inTiebreak) {
+      return `Set ${currentSet + 1} : ${sets[currentSet][0]}-${sets[currentSet][1]}, TB ${points[0]}-${points[1]}`;
+    } else {
+      const p1 = getTennisPoint(points[0], points[1]);
+      const p2 = getTennisPoint(points[1], points[0]);
+      return `Set ${currentSet + 1} : ${sets[currentSet][0]}-${sets[currentSet][1]}, Jeu ${jeux[0]}-${jeux[1]}, Pts ${p1}-${p2}`;
+    }
+  }
+
+  function winPoint(winner) {
+    const loser = 1 - winner;
+
+    if (inTiebreak) {
+      points[winner]++;
+      if ((points[winner] >= 7) && (points[winner] - points[loser] >= 2)) {
+        // gagne le tie-break → set
+        sets[currentSet][winner]++;
+        currentSet++;
+        sets.push([0, 0]);
+        jeux = [0, 0];
+        inTiebreak = false;
+      }
+      return;
+    }
+
+    if (points[winner] < 3) {
+      points[winner]++;
+    } else if (points[winner] === 3) {
+      if (points[loser] < 3) {
+        // Gagne le jeu
+        jeux[winner]++;
+        points = [0, 0];
+        advantage = null;
+      } else if (points[loser] === 3) {
+        if (advantage === winner) {
+          // gagne le jeu
+          jeux[winner]++;
+          points = [0, 0];
+          advantage = null;
+        } else if (advantage === loser) {
+          advantage = null; // retour à égalité
+        } else {
+          advantage = winner;
+        }
+      }
+    }
+
+    // Vérifier jeu gagné
+    if (points[0] === 0 && points[1] === 0) {
+      // Jeu terminé, vérifier set
+      if (jeux[winner] >= 6 && (jeux[winner] - jeux[loser]) >= 2) {
+        sets[currentSet][winner]++;
+        currentSet++;
+        sets.push([0, 0]);
+        jeux = [0, 0];
+      } else if (jeux[0] === 6 && jeux[1] === 6) {
+        inTiebreak = true;
+        points = [0, 0];
+      }
+    }
+  }
+
+  for (const log of logs) {
+    const action = log.action;
+
+    if (action === "point_gagné") {
+      winPoint(0);
+    } else if (["faute_directe", "faute_non_directe", "service_non_renvoye", "2eme_service_KO"].includes(action)) {
+      winPoint(1);
+    } else if (action === "change_server") {
+      currentServer = currentServer === "J1" ? "J2" : "J1";
+    }
+
+    const score = scoreToString();
+
+    const values = Object.keys(log).map(k => {
+      let val = log[k];
+      if (typeof val === "string" && (val.includes(",") || val.includes('"') || val.includes("\n"))) {
+        val = '"' + val.replace(/"/g, '""') + '"';
+      }
+      return val;
+    });
+
+    values.push(`"${score}"`);
+    csvRows.push(values.join(","));
+  }
+
+  return csvRows.join("\n");
+}
+
+    
+function logsToCSV4Final(logs) {
+  if (!logs.length) return "";
+
+  const headers = Object.keys(logs[0]).concat("score_tennis", "score_cumul");
+  const csvRows = [headers.join(";")];
+
+  let sets = [[0, 0]];
+  let currentSet = 0;
+  let jeux = [0, 0];
+  let points = [0, 0];
+  let advantage = null;
+  let inTiebreak = false;
+
+  let currentServer = logs[0]?.server || "J1";
+
+  let j1Total = 0;
+  let j2Total = 0;
+  let j1Temp = 0;
+  let j2Temp = 0;
+
+  function getTennisPoint(p1, p2) {
+    const labels = ["0", "15", "30", "40"];
+    if (p1 >= 3 && p2 >= 3) {
+      if (p1 === p2) return "40A";
+      if (p1 > p2) return "AD";
+      return "";
+    }
+    return labels[p1] || "AD";
+  }
+
+  function scoreTennis() {
+    if (inTiebreak) {
+      //return `Set ${currentSet + 1} : ${sets[currentSet][0]}-${sets[currentSet][1]}, TB ${points[0]}-${points[1]}`;
+      return ``;
+    } else {
+      const p1 = getTennisPoint(points[0], points[1]);
+      const p2 = getTennisPoint(points[1], points[0]);
+      //return `Set ${currentSet + 1} : ${sets[currentSet][0]}-${sets[currentSet][1]}, Jeu ${jeux[0]}-${jeux[1]}, Pts ${p1}-${p2}`;
+      return ``;
+    }
+  }
+
+  function winPoint(winner) {
+    const loser = 1 - winner;
+
+    if (winner === 0) {
+      j1Total++; j1Temp++;
+    } else {
+      j2Total++; j2Temp++;
+    }
+
+    if (inTiebreak) {
+      points[winner]++;
+      if ((points[winner] >= 7) && (points[winner] - points[loser] >= 2)) {
+        sets[currentSet][winner]++;
+        currentSet++;
+        sets.push([0, 0]);
+        jeux = [0, 0];
+        inTiebreak = false;
+      }
+      return;
+    }
+
+    if (points[winner] < 3) {
+      points[winner]++;
+    } else if (points[winner] === 3) {
+      if (points[loser] < 3) {
+        jeux[winner]++;
+        points = [0, 0];
+        advantage = null;
+      } else if (points[loser] === 3) {
+        if (advantage === winner) {
+          jeux[winner]++;
+          points = [0, 0];
+          advantage = null;
+        } else if (advantage === loser) {
+          advantage = null;
+        } else {
+          advantage = winner;
+        }
+      }
+    }
+
+    if (points[0] === 0 && points[1] === 0) {
+      if (jeux[winner] >= 6 && (jeux[winner] - jeux[loser]) >= 2) {
+        sets[currentSet][winner]++;
+        currentSet++;
+        sets.push([0, 0]);
+        jeux = [0, 0];
+      } else if (jeux[0] === 6 && jeux[1] === 6) {
+        inTiebreak = true;
+        points = [0, 0];
+      }
+    }
+  }
+
+  for (const log of logs) {
+    const action = log.action;
+
+    if (["point_gagné_faute_dir_adverse", "point_gagné_coup_gagnant", "point_gagné_au_filet"].includes(action)) {
+      winPoint(0);
+    } else if (["faute_directe", "faute_non_directe", "service_non_renvoye", "2eme_service_KO", "point_perdu_au_filet"].includes(action)) {
+      winPoint(1);
+    } else if (action === "change_server") {
+      currentServer = currentServer === "J1" ? "J2" : "J1";
+    }
+
+    const scoreT = scoreTennis();
+    const scoreC = `J1: ${j1Total} (+${j1Temp}) | J2: ${j2Total} (+${j2Temp})`;
+
+    const values = Object.keys(log).map(k => {
+      let val = log[k];
+      if (typeof val === "string" && (val.includes(";") || val.includes('"') || val.includes("\n"))) {
+        val = '"' + val.replace(/"/g, '""') + '"';
+      }
+      return val;
+    });
+
+    //values.push(scoreT);
+    //values.push(scoreC);
+    csvRows.push(values.join(";"));
+  }
+
+  return csvRows.join("\n");
+}
+
+function copyToClipboardCSV() {
+  const csv = logsToCSVCompact(logs);
+  navigator.clipboard.writeText(csv).then(() => {
+    alert("Données CSV compactes copiées dans le presse-papiers !");
+  }).catch(err => {
+    alert("Erreur lors de la copie : " + err);
+  });
+}
+    
+function logsToCSVCompact(logs) {
+  const csvRows = [];
+  csvRows.push("Heure;Action;Score");
+
+  const actionCodes = {
+    point_gagné_faute_dir_adverse: "PGFDA",
+    point_gagné_coup_gagnant: "PGCG",
+    point_gagné_au_filet: "PGAF",       // ← nouveau
+    point_perdu_au_filet: "PPAF",       // ← nouveau
+    faute_directe: "FD",
+    faute_non_directe: "FND",
+    service_non_renvoye: "FRS",
+    point_gagné_faute_adverse:"PGFA",
+    "1er_service_KO": "S1X",
+    "2eme_service_KO": "S2X",
+    "Erreur_detectee": "err",
+    change_server: "CS"
+  };
+
+  for (const log of logs) {
+//    const time = log.timestamp;  //   ?.split(" ")[1] || ""; // extrait heure uniquement
+    const time = log.timestamp?.split("T")[1]?.substring(0, 8)?.replace(/:/g, "") || "";
+    const servi = log.server;  //   ?.split(" ")[1] || ""; // extrait heure uniquement
+    const action = actionCodes[log.action] || log.action;
+    //const scoreT = scoreTennis(); // exemple : "0-0, 15-30"
+
+    csvRows.push(`${time};${servi};${action}`);
+  }
+
+  return csvRows.join("\n");
+}
+  
+    
+  </script>
+</body>
+</html>
